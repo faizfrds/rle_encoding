@@ -45,7 +45,28 @@ public class RLEconverter {
 */
 public String compressLine(String line, char[] fileChars){
    //TODO: Implement this method
-      return null;
+
+  String compressed = "";
+
+  for (int i = 0; i < line.length()-1; i++){
+    
+    Integer occurence = 1;
+
+    while (i != line.length()-1 && line.charAt(i) == fileChars[0] && line.charAt(i+1) == fileChars[0]){
+      occurence++;
+      i++;   
+    }
+
+    while (i != line.length()-1 && line.charAt(i) == fileChars[1] && line.charAt(i+1) == fileChars[1]){
+      occurence++;
+      i++;   
+    }
+
+    compressed = compressed + "," + occurence.toString();
+    
+  }
+  System.out.println(compressed);
+  return compressed;
 }
 
   /*
@@ -55,9 +76,17 @@ public String compressLine(String line, char[] fileChars){
    *  each line.
    *  The dataSize is the number of lines in the file, which is likely to be << the length of lines.
    */
-  public String[] compressAllLines(String[] lines, int dataSize, char[] fileChars){
-      //TODO: Implement this method
-      return null;
+public String[] compressAllLines(String[] lines, int dataSize, char[] fileChars){
+  //TODO: Implement this method
+
+  String[] compressedLines = new String[dataSize-1];
+
+  for (int i = 0; i < dataSize; i++){
+    compressedLines[i] = compressLine(lines[i], fileChars);
+  }
+
+  System.out.println(compressedLines.toString());
+  return compressedLines;
 }
 
 /*
@@ -67,7 +96,21 @@ public String compressLine(String line, char[] fileChars){
  */
 public String getCompressedFileStr(String[] compressed, char[] fileChars) {
     //TODO: Implement this method
-      return null;
+
+    String fileString = String.valueOf(fileChars[0]) ;
+    fileString = fileString + String.valueOf(fileChars[1]) + "\n";
+
+    for (int i = 0; i < compressed.length-1; i++){
+
+      fileString = fileString + compressed[i];
+
+      if (i != compressed.length-1){
+        fileString = fileString + "\n";
+      }
+    }
+
+    System.out.println(fileString);
+    return fileString;
 }
    /*
     *  This method reads in an RLE compressed ascii image file that contains 
@@ -136,7 +179,17 @@ public String getCompressedFileStr(String[] compressed, char[] fileChars) {
   // assume the file contains only 2 different ascii characters.
   public char[] discoverAsciiChars(String[] decompressed, int dataSize){
 //TODO: Implement this method
-  return null;
+  
+  char[] fileChars = new char[2];
+  fileChars[0] = decompressed[0].charAt(0);
+
+  for (int i = 1; i < decompressed[0].length(); i++){
+    if (decompressed[0].charAt(i) != fileChars[0]){
+      fileChars[1] = decompressed[0].charAt(i);
+    }
+  }
+
+  return fileChars;
 }
 
 
