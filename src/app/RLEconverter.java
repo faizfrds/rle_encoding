@@ -2,6 +2,7 @@ package app;
 
 import java.util.Scanner;
 import java.io.*;
+import java.nio.file.Files;
 
 public class RLEconverter {
    private final static int DEFAULT_LEN = 100; // used to create arrays.
@@ -43,35 +44,33 @@ public class RLEconverter {
  * The two characters that make up the image file are passed in as a char array, where
  * the first cell contains the first character that occurred in the file.
 */
-public String compressLine(String line, char[] fileChars){
+  public String compressLine(String line, char[] fileChars){
    //TODO: Implement this method
 
-  String compressed = "";
+    String compressed = "";
 
-  for (int i = 0; i < line.length(); i++){
-    
-    Integer occurence = 1; //there needs to be at least one occurence of each char
+    for (int i = 0; i < line.length(); i++){
+      Integer occurence = 1; //there needs to be at least one occurence of each char
+      while (i != line.length()-1 && line.charAt(i) == fileChars[0] && line.charAt(i+1) == fileChars[0]){
+        occurence++;
+        i++;   
+      }
 
-    while (i != line.length()-1 && line.charAt(i) == fileChars[0] && line.charAt(i+1) == fileChars[0]){
-      occurence++;
-      i++;   
-    }
+      while (i != line.length()-1 && line.charAt(i) == fileChars[1] && line.charAt(i+1) == fileChars[1]){
+        occurence++;
+        i++;   
+      }
 
-    while (i != line.length()-1 && line.charAt(i) == fileChars[1] && line.charAt(i+1) == fileChars[1]){
-      occurence++;
-      i++;   
+      if (compressed == ""){ //ensures unnecessary comma doesnt appear at the start of the line
+        compressed = occurence.toString();
+      }
+      else{
+        compressed = compressed + "," + occurence.toString();
+      }
+      
     }
-
-    if (compressed == ""){ //ensures unnecessary comma doesnt appear at the start of the line
-      compressed = occurence.toString();
-    }
-    else{
-      compressed = compressed + "," + occurence.toString();
-    }
-    
+    return compressed;
   }
-  return compressed;
-}
 
   /*
    *  This method discovers the two ascii characters that make up the image. 
@@ -80,38 +79,39 @@ public String compressLine(String line, char[] fileChars){
    *  each line.
    *  The dataSize is the number of lines in the file, which is likely to be << the length of lines.
    */
-public String[] compressAllLines(String[] lines, int dataSize, char[] fileChars){
-  //TODO: Implement this method
 
-  String[] compressedLines = new String[dataSize];
+  public String[] compressAllLines(String[] lines, int dataSize, char[] fileChars){
+    //TODO: Implement this method
 
-  for (int i = 0; i < dataSize; i++){
-    compressedLines[i] = compressLine(lines[i], fileChars);
+    String[] compressedLines = new String[dataSize];
+
+    for (int i = 0; i < dataSize; i++){
+      compressedLines[i] = compressLine(lines[i], fileChars);
+    }
+    return compressedLines;
   }
-  return compressedLines;
-}
 
 /*
  *  This method assembles the lines of compressed data for
  *  writing to a file. The first line must be the 2 ascii characters
  *  in comma-separated format. 
  */
-public String getCompressedFileStr(String[] compressed, char[] fileChars) {
-    //TODO: Implement this method
+  public String getCompressedFileStr(String[] compressed, char[] fileChars) {
+      //TODO: Implement this method
 
-    String fileString = String.valueOf(fileChars[0]) ;
-    fileString = fileString + String.valueOf(fileChars[1]) + "\n";
+      String fileString = String.valueOf(fileChars[0]) ;
+      fileString = fileString + String.valueOf(fileChars[1]) + "\n";
 
-    for (int i = 0; i < compressed.length; i++){
+      for (int i = 0; i < compressed.length; i++){
 
-      fileString = fileString + compressed[i];
+        fileString = fileString + compressed[i];
 
-      if (i != compressed.length-1){
-        fileString = fileString + "\n";
+        if (i != compressed.length-1){
+          fileString = fileString + "\n";
+        }
       }
-    }
-    return fileString;
-}
+      return fileString;
+  }
    /*
     *  This method reads in an RLE compressed ascii image file that contains 
     *  2 characters. It stores each line of the file in an array.
@@ -126,6 +126,7 @@ public String getCompressedFileStr(String[] compressed, char[] fileChars) {
     *  that holds the lines of the file is initialized to the DEFAULT_LEN, which 
     *  is assumed to be << the number of lines in the file.
     */   
+
   public void decompressFile(String fileName) throws IOException{
     Scanner scan = new Scanner(new FileReader(fileName));
     String line = null;
@@ -148,10 +149,28 @@ public String getCompressedFileStr(String[] compressed, char[] fileChars) {
    * of that line. The two characters that make up the image file are passed in as a char array, 
    * where the first cell contains the first character that occurred in the file.
    */
-   public String decompressLine(String line, char[] fileChars){
+    public String decompressLine(String line, char[] fileChars){
       //TODO: Implement this method
-        return null;
-   }
+
+      String decompress = "";
+      int fileCharsIndex = 1;
+
+      for (int i = 0; i < line.length(); i++){
+
+        int occurence = -1;
+        if (line.charAt(i) != ','){
+          fileCharsIndex = (fileCharsIndex == 0)? 1:0; //switches between characters
+          occurence = Integer.parseInt(String.valueOf(line.charAt(i)));
+        }
+
+        for (int j = 0; j < occurence; j++){
+          decompress = decompress + fileChars[fileCharsIndex];
+          
+        }
+        
+      }
+      return decompress;
+    }
     /*
    *  This method iterates through all of the compressed lines and writes 
    *  each decompressed line to a String array which is returned. 
@@ -163,7 +182,18 @@ public String getCompressedFileStr(String[] compressed, char[] fileChars) {
    */
   public String[] decompressAllLines(String[] lines, int dataSize){
      //TODO: Implement this method
-      return null;
+
+    String[] decompressedArray = new String[dataSize];
+    char[] fileChars = new char[2];
+
+    for (int i = 0; i < 2; i++){
+      fileChars[i] = lines[0].charAt(i);
+    }
+ 
+    for (int j = 1; j < decompressedArray.length; j++){
+      decompressedArray[j] = decompressLine(lines[j], fileChars);
+    }
+    return decompressedArray;
   }
   
   /*
@@ -171,9 +201,17 @@ public String getCompressedFileStr(String[] compressed, char[] fileChars) {
    *  writing to a file. 
    */
   public String getDecompressedFileStr(String[] decompressed){
-     String data = "";
+    
+    String data = "";
    //TODO: Implement this method
-      return null;
+
+    for (int i = 1; i < decompressed.length; i++){
+      data = data + decompressed[i];
+      System.out.println(data);
+      data = (i != decompressed.length-1)? data + "\n" : data;
+    }
+    System.out.println(data);
+    return data;
   }
 
   // assume the file contains only 2 different ascii characters.
@@ -190,14 +228,11 @@ public String getCompressedFileStr(String[] compressed, char[] fileChars) {
   }
 
   return fileChars;
-}
+} 
 
-
-
-   
-   public void writeFile(String data, String fileName) throws IOException{
-		PrintWriter pw = new PrintWriter(fileName);
-      pw.print(data);
-      pw.close();
-   }
+  public void writeFile(String data, String fileName) throws IOException{
+  PrintWriter pw = new PrintWriter(fileName);
+    pw.print(data);
+    pw.close();
+ }
 }
