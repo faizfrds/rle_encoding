@@ -50,7 +50,9 @@ public class RLEconverter {
     String compressed = "";
 
     for (int i = 0; i < line.length(); i++){
-      Integer occurence = 1; //there needs to be at least one occurence of each char
+
+      Integer occurence = 1; //default number of occurence when a char is discovered
+
       while (i != line.length()-1 && line.charAt(i) == fileChars[0] && line.charAt(i+1) == fileChars[0]){
         occurence++;
         i++;   
@@ -61,13 +63,21 @@ public class RLEconverter {
         i++;   
       }
 
-      if (compressed == "" && line.charAt(0)!=fileChars[0]){ //ensures unnecessary comma doesnt appear at the start of the line
+      /*if first character in 'line' is not equal to first char in fileChars, then its known that its occurence in the
+      string is 0 initially*/
+      if (compressed == "" && line.charAt(0)!=fileChars[0]){ 
         compressed = "0," + occurence.toString();
       }
+
+      //ensures unnecessary comma doesnt appear at the start of the line 
+      else if(compressed == ""){ 
+        compressed = occurence.toString();
+      }
+
       else{
         compressed = compressed + "," + occurence.toString();
       }
-      
+
     }
     return compressed;
   }
@@ -86,8 +96,9 @@ public class RLEconverter {
     String[] compressedLines = new String[dataSize];
 
     for (int i = 0; i < dataSize; i++){
-      compressedLines[i] = compressLine(lines[i], fileChars);
+      compressedLines[i] = compressLine(lines[i], fileChars); //calls the compressLine method for each line and adds to the array
     }
+
     return compressedLines;
   }
 
@@ -99,16 +110,17 @@ public class RLEconverter {
   public String getCompressedFileStr(String[] compressed, char[] fileChars) {
       //TODO: Implement this method
 
-      String fileString = String.valueOf(fileChars[0]) ;
-      fileString = fileString + String.valueOf(fileChars[1]) + "\n";
+      String fileString = String.valueOf(fileChars[0]) + ',' ;
+      fileString = fileString + String.valueOf(fileChars[1]) + "\n"; //the first row stores the two characters
 
       for (int i = 0; i < compressed.length; i++){
 
         fileString = fileString + compressed[i];
 
-        if (i != compressed.length-1){
+        if (i != compressed.length-1){ //ensures that new line is not made when the loop is on the last row
           fileString = fileString + "\n";
         }
+
       }
       return fileString;
   }
@@ -157,9 +169,10 @@ public class RLEconverter {
 
       for (int i = 0; i < line.length(); i++){
 
-        int occurence = -1;
+        //default occurence is -1 because the nested for loop needs this variable to be declared but not always run
+        int occurence = -1; 
         
-        if (line.charAt(i) != ',' && line.charAt(i+1) != ','){
+        if (i != line.length()-1 && line.charAt(i) != ',' && line.charAt(i+1) != ','){ //executes when there's two digit occurences
           String twoDigits = String.valueOf(line.charAt(i));
           twoDigits = twoDigits + String.valueOf(line.charAt(i+1));
           occurence = Integer.parseInt(twoDigits);
@@ -172,7 +185,7 @@ public class RLEconverter {
           fileCharsIndex = (fileCharsIndex == 0)? 1:0; //switches between characters
         }
 
-        for (int j = 0; j < occurence; j++){
+        for (int j = 0; j < occurence; j++){ //adds the character to string according to how many times it occurs
           decompress = decompress + fileChars[fileCharsIndex];
         }
         
@@ -194,7 +207,7 @@ public class RLEconverter {
     String[] decompressedArray = new String[dataSize];
     char[] fileChars = new char[2];
 
-    for (int i = 0; i < 2; i++){
+    for (int i = 0; i < 2; i++){ //store the two chars in the array
       fileChars[i] = lines[0].charAt(i);
     }
  
@@ -215,10 +228,8 @@ public class RLEconverter {
 
     for (int i = 1; i < decompressed.length; i++){
       data = data + decompressed[i];
-      System.out.println(data);
       data = (i != decompressed.length-1)? data + "\n" : data;
     }
-    System.out.println(data);
     return data;
   }
 
@@ -234,7 +245,6 @@ public class RLEconverter {
       fileChars[1] = decompressed[0].charAt(i);
     }
   }
-
   return fileChars;
 } 
 
