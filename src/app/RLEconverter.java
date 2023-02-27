@@ -61,8 +61,8 @@ public class RLEconverter {
         i++;   
       }
 
-      if (compressed == ""){ //ensures unnecessary comma doesnt appear at the start of the line
-        compressed = occurence.toString();
+      if (compressed == "" && line.charAt(0)!=fileChars[0]){ //ensures unnecessary comma doesnt appear at the start of the line
+        compressed = "0," + occurence.toString();
       }
       else{
         compressed = compressed + "," + occurence.toString();
@@ -158,14 +158,22 @@ public class RLEconverter {
       for (int i = 0; i < line.length(); i++){
 
         int occurence = -1;
-        if (line.charAt(i) != ','){
+        
+        if (line.charAt(i) != ',' && line.charAt(i+1) != ','){
+          String twoDigits = String.valueOf(line.charAt(i));
+          twoDigits = twoDigits + String.valueOf(line.charAt(i+1));
+          occurence = Integer.parseInt(twoDigits);
           fileCharsIndex = (fileCharsIndex == 0)? 1:0; //switches between characters
+          i++;
+        }
+
+        else if (line.charAt(i) != ','){
           occurence = Integer.parseInt(String.valueOf(line.charAt(i)));
+          fileCharsIndex = (fileCharsIndex == 0)? 1:0; //switches between characters
         }
 
         for (int j = 0; j < occurence; j++){
           decompress = decompress + fileChars[fileCharsIndex];
-          
         }
         
       }
