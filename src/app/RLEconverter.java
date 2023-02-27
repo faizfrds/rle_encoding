@@ -48,9 +48,9 @@ public String compressLine(String line, char[] fileChars){
 
   String compressed = "";
 
-  for (int i = 0; i < line.length()-1; i++){
+  for (int i = 0; i < line.length(); i++){
     
-    Integer occurence = 1;
+    Integer occurence = 1; //there needs to be at least one occurence of each char
 
     while (i != line.length()-1 && line.charAt(i) == fileChars[0] && line.charAt(i+1) == fileChars[0]){
       occurence++;
@@ -62,10 +62,14 @@ public String compressLine(String line, char[] fileChars){
       i++;   
     }
 
-    compressed = compressed + "," + occurence.toString();
+    if (compressed == ""){ //ensures unnecessary comma doesnt appear at the start of the line
+      compressed = occurence.toString();
+    }
+    else{
+      compressed = compressed + "," + occurence.toString();
+    }
     
   }
-  System.out.println(compressed);
   return compressed;
 }
 
@@ -79,13 +83,11 @@ public String compressLine(String line, char[] fileChars){
 public String[] compressAllLines(String[] lines, int dataSize, char[] fileChars){
   //TODO: Implement this method
 
-  String[] compressedLines = new String[dataSize-1];
+  String[] compressedLines = new String[dataSize];
 
   for (int i = 0; i < dataSize; i++){
     compressedLines[i] = compressLine(lines[i], fileChars);
   }
-
-  System.out.println(compressedLines.toString());
   return compressedLines;
 }
 
@@ -100,7 +102,7 @@ public String getCompressedFileStr(String[] compressed, char[] fileChars) {
     String fileString = String.valueOf(fileChars[0]) ;
     fileString = fileString + String.valueOf(fileChars[1]) + "\n";
 
-    for (int i = 0; i < compressed.length-1; i++){
+    for (int i = 0; i < compressed.length; i++){
 
       fileString = fileString + compressed[i];
 
@@ -108,8 +110,6 @@ public String getCompressedFileStr(String[] compressed, char[] fileChars) {
         fileString = fileString + "\n";
       }
     }
-
-    System.out.println(fileString);
     return fileString;
 }
    /*
