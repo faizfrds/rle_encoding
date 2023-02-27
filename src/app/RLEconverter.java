@@ -207,9 +207,8 @@ public class RLEconverter {
     String[] decompressedArray = new String[dataSize];
     char[] fileChars = new char[2];
 
-    for (int i = 0; i < 2; i++){ //store the two chars in the array
-      fileChars[i] = lines[0].charAt(i);
-    }
+    fileChars[0] = lines[0].charAt(0); //store the two chars in the fileChars array
+    fileChars[1] = lines[0].charAt(2);
  
     for (int j = 1; j < decompressedArray.length; j++){
       decompressedArray[j] = decompressLine(lines[j], fileChars);
